@@ -93,6 +93,24 @@ def encode_maze(maze: list[list[int]]) -> str:
         cell_maze.append(encode_row(row))
     return "\n".join(cell_maze) + "\n"
 
+
+def write_maze(
+        filename: str,
+        maze: list[list[int]],
+        entry: tuple[int, int],
+        exit_pos: tuple[int, int],
+        path: str
+) -> None:
+    with open(filename, "w", encoding="utf-8") as file:
+        maze_co = encode_maze(maze)
+        entry_x, entry_y = entry
+        exit_x, exit_y = exit_pos
+        file.write(maze_co)
+        file.write("\n")
+        file.write(f"{entry_x},{entry_y}\n")
+        file.write(f"{exit_x},{exit_y}\n")
+        file.write(f"{path}\n")
+
 def main() -> int:
     """Read and validate the maze configuration."""
     if len(sys.argv) != 2:
@@ -139,5 +157,12 @@ if __name__ == "__main__":
         [1, 2, 3, 4],
         [8, 9, 10, 11]
     ]
+    write_maze(
+        "teste.txt",
+        maze,
+        (0, 0),
+        (1, 0),
+        "E"
+    )
     print(encode_maze(maze))
     print(repr(encode_maze(maze)))
