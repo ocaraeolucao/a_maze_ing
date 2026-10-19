@@ -87,10 +87,11 @@ def encode_row(row: list[int]) -> str:
     return "".join(list_row)
 
 
-""" def encode_maze(maze: list[list[int]]) -> str:
-    cell_maze: str
-    for cell in maze:
-        encode_row(cell) """
+def encode_maze(maze: list[list[int]]) -> str:
+    cell_maze: list[str] = []
+    for row in maze:
+        cell_maze.append(encode_row(row))
+    return "\n".join(cell_maze) + "\n"
 
 def main() -> int:
     """Read and validate the maze configuration."""
@@ -132,4 +133,11 @@ def main() -> int:
 
 if __name__ == "__main__":
     # sys.exit(main())
-    print(encode_row([15, 10, 3, 0]))
+
+    maze = [
+        [15, 10, 3, 0],
+        [1, 2, 3, 4],
+        [8, 9, 10, 11]
+    ]
+    print(encode_maze(maze))
+    print(repr(encode_maze(maze)))
