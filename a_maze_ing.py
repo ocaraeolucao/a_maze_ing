@@ -164,5 +164,4 @@ if __name__ == "__main__":
         (1, 0),
         "E"
     )
-    print(encode_maze(maze))
-    print(repr(encode_maze(maze)))
+
