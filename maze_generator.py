@@ -1,6 +1,5 @@
 import random
 
-
 NORTH = 1
 EAST = 2
 SOUTH = 4
@@ -28,41 +27,24 @@ PATTERN_42: list[tuple[int, int]] = [
 
 
 class MazeGenerator:
-    def __init__(self, width: int, height: int,
-                 entry: tuple[int, int], exit_pos: tuple[int, int],
-                 perfect: bool, seed: int | None = None) -> None:
+    def __init__(
+        self,
+        width: int,
+        height: int,
+        entry: tuple[int, int],
+        exit_pos: tuple[int, int],
+        perfect: bool,
+        seed: int | None = None,
+    ) -> None:
         self.width = width
         self.height = height
         self.entry = entry
         self.exit_pos = exit_pos
         self.perfect = perfect
         self.rng = random.Random(seed) if seed is not None else random.Random()
-        self.maze = [[15 for _ in range(width)] for _ in range(height)]
-
-    def generate(self) -> list[list[int]]:
-        blocked_cells = self._get_pattern_42_cells()
-        self._generate_perfect_maze(blocked=blocked_cells)
-        if not self.perfect:
-            self._make_imperfect(blocked=blocked_cells)
-        return self.maze
-
-    def _generate_perfect_maze(
-        self, blocked: set[tuple[int, int]] | None = None
-    ) -> None:
-        visited: set[tuple[int, int]] = set(blocked) if blocked else set()
-        start_x, start_y = self.entry
-        visited.add((start_x, start_y))
-        stack: list[tuple[int, int]] = [(start_x, start_y)]
-        while stack:
-            curr_x, curr_y = stack[-1]
-            neighbors = self._get_unvisited_neighbors(curr_x, curr_y, visited)
-            if neighbors:
-                nx, ny, direction = self.rng.choice(neighbors)
-                self._remove_wall(curr_x, curr_y, direction)
-                visited.add((nx, ny))
-                stack.append((nx, ny))
-            else:
-                stack.pop()
+        self.maze: list[list[int]] = [
+            [15 for _ in range(width)] for _ in range(height)
+        ]
 
     def _remove_wall(self, x: int, y: int, direction: int) -> None:
         dx, dy, opposite_wall = DIRECTIONS[direction]
@@ -70,6 +52,13 @@ class MazeGenerator:
         if 0 <= nx < self.width and 0 <= ny < self.height:
             self.maze[y][x] &= ~direction
             self.maze[ny][nx] &= ~opposite_wall
+
+    def _restore_wall(self, x: int, y: int, direction: int) -> None:
+        dx, dy, opposite_wall = DIRECTIONS[direction]
+        nx, ny = x + dx, y + dy
+        if 0 <= nx < self.width and 0 <= ny < self.height:
+            self.maze[y][x] |= direction
+            self.maze[ny][nx] |= opposite_wall
 
     def _get_unvisited_neighbors(
         self, x: int, y: int, visited: set[tuple[int, int]]
@@ -96,12 +85,23 @@ class MazeGenerator:
             return set()
         return blocked
 
-    def _restore_wall(self, x: int, y: int, direction: int) -> None:
-        dx, dy, opposite_wall = DIRECTIONS[direction]
-        nx, ny = x + dx, y + dy
-        if 0 <= nx < self.width and 0 <= ny < self.height:
-            self.maze[y][x] |= direction
-            self.maze[ny][nx] |= opposite_wall
+    def _generate_perfect_maze(
+        self, blocked: set[tuple[int, int]] | None = None
+    ) -> None:
+        visited: set[tuple[int, int]] = set(blocked) if blocked else set()
+        start_x, start_y = self.entry
+        visited.add((start_x, start_y))
+        stack: list[tuple[int, int]] = [(start_x, start_y)]
+        while stack:
+            curr_x, curr_y = stack[-1]
+            neighbors = self._get_unvisited_neighbors(curr_x, curr_y, visited)
+            if neighbors:
+                nx, ny, direction = self.rng.choice(neighbors)
+                self._remove_wall(curr_x, curr_y, direction)
+                visited.add((nx, ny))
+                stack.append((nx, ny))
+            else:
+                stack.pop()
 
     def _has_open_3x3(self) -> bool:
         for by in range(self.height - 2):
@@ -178,14 +178,26 @@ class MazeGenerator:
                         opened += 1
                         break
 
+    def generate(self) -> list[list[int]]:
+        blocked_cells = self._get_pattern_42_cells()
+        self._generate_perfect_maze(blocked=blocked_cells)
+        if not self.perfect:
+            self._make_imperfect(blocked=blocked_cells)
+        return self.maze
+
 
 if __name__ == "__main__":
+    print("--- Teste 1: Modo Perfeito (PERFECT=True) ---")
+    gen_perf = MazeGenerator(20, 15, (0, 0), (19, 14), True, seed=42)
+    maze_perf = gen_perf.generate()
+    for row in maze_perf:
+        print("".join(f"{cell:X}" for cell in row))
+    print("\n--- Teste 2: Modo Imperfeito (PERFECT=False) ---")
     gen_imp = MazeGenerator(20, 15, (0, 0), (19, 14), False, seed=42)
     maze_imp = gen_imp.generate()
-    print("Labirinto Imperfeito (PERFECT=False):")
     for row in maze_imp:
         print("".join(f"{cell:X}" for cell in row))
     dead_ends = sum(
         1 for row in maze_imp for cell in row if cell in {7, 11, 13, 14}
     )
-    print(f"Becos sem saída restantes: {dead_ends}")
+    print(f"\nBecos sem saída restantes no modo imperfeito: {dead_ends}")
