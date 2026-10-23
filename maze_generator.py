@@ -13,8 +13,8 @@ DIRECTIONS: dict[int, tuple[int, int, int]] = {
 }
 
 PATTERN_42: list[tuple[int, int]] = [
-    (0, 0), (2, 0),
-    (0, 1), (2, 1),
+    (0, 0),
+    (0, 1),
     (0, 2), (1, 2), (2, 2),
     (2, 3),
     (2, 4),
@@ -33,9 +33,21 @@ class MazeGenerator:
         height: int,
         entry: tuple[int, int],
         exit_pos: tuple[int, int],
-        perfect: bool,
+        perfect: bool = False,
         seed: int | None = None,
     ) -> None:
+        if width < 2 or height < 2:
+            raise ValueError("Dimensões do labirinto devem ser no mínimo 2x2.")
+        ex, ey = entry
+        xx, xy = exit_pos
+        if not (0 <= ex < width and 0 <= ey < height):
+            raise ValueError(f"Entrada {entry} fora dos limites do labirinto.")
+        if not (0 <= xx < width and 0 <= xy < height):
+            raise ValueError(
+                f"Saída {exit_pos} fora dos limites do labirinto."
+            )
+        if entry == exit_pos:
+            raise ValueError("Entrada e saída devem ter coordenadas distintas")
         self.width = width
         self.height = height
         self.entry = entry
@@ -72,10 +84,10 @@ class MazeGenerator:
         return neighbors
 
     def _get_pattern_42_cells(self) -> set[tuple[int, int]]:
-        if self.width < 9 or self.height < 7:
+        if self.width < 11 or self.height < 9:
             print("Aviso: Labirinto pequeno demais para o padrão '42'.")
             return set()
-        offset_x = (self.width - 7) // 2
+        offset_x = (self.width // 2) - 3
         offset_y = (self.height - 5) // 2
         blocked: set[tuple[int, int]] = {
             (offset_x + dx, offset_y + dy) for dx, dy in PATTERN_42
@@ -135,28 +147,30 @@ class MazeGenerator:
             for x in range(self.width)
             if (x, y) not in blocked
         ]
-        self.rng.shuffle(coords)
-        for x, y in coords:
-            if self.maze[y][x] in dead_end_values:
-                candidates: list[int] = []
-                for direction, (dx, dy, _) in DIRECTIONS.items():
-                    nx, ny = x + dx, y + dy
-                    if (
-                        0 <= nx < self.width
-                        and 0 <= ny < self.height
-                        and (nx, ny) not in blocked
-                        and (self.maze[y][x] & direction)
-                    ):
-                        candidates.append(direction)
-                self.rng.shuffle(candidates)
-                for direction in candidates:
-                    self._remove_wall(x, y, direction)
-                    if self._has_open_3x3():
-                        self._restore_wall(x, y, direction)
-                    else:
-                        break
-        extra_openings = max(2, (self.width * self.height) // 7)
+        for _ in range(3):
+            self.rng.shuffle(coords)
+            for x, y in coords:
+                if self.maze[y][x] in dead_end_values:
+                    candidates: list[int] = []
+                    for direction, (dx, dy, _) in DIRECTIONS.items():
+                        nx, ny = x + dx, y + dy
+                        if (
+                            0 <= nx < self.width
+                            and 0 <= ny < self.height
+                            and (nx, ny) not in blocked
+                            and (self.maze[y][x] & direction)
+                        ):
+                            candidates.append(direction)
+                    self.rng.shuffle(candidates)
+                    for direction in candidates:
+                        self._remove_wall(x, y, direction)
+                        if self._has_open_3x3():
+                            self._restore_wall(x, y, direction)
+                        else:
+                            break
+        extra_openings = max(3, (self.width * self.height) // 7)
         opened = 0
+        self.rng.shuffle(coords)
         for x, y in coords:
             if opened >= extra_openings:
                 break
@@ -179,6 +193,9 @@ class MazeGenerator:
                         break
 
     def generate(self) -> list[list[int]]:
+        self.maze = [
+            [15 for _ in range(self.width)] for _ in range(self.height)
+        ]
         blocked_cells = self._get_pattern_42_cells()
         self._generate_perfect_maze(blocked=blocked_cells)
         if not self.perfect:
