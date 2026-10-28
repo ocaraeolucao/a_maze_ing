@@ -57,6 +57,7 @@ class MazeGenerator:
         self.maze: list[list[int]] = [
             [15 for _ in range(width)] for _ in range(height)
         ]
+        self.warnings: list[str] = []
 
     def _remove_wall(self, x: int, y: int, direction: int) -> None:
         dx, dy, opposite_wall = DIRECTIONS[direction]
@@ -84,8 +85,11 @@ class MazeGenerator:
         return neighbors
 
     def _get_pattern_42_cells(self) -> set[tuple[int, int]]:
+        self.warnings.clear()
         if self.width < 11 or self.height < 9:
-            print("Aviso: Labirinto pequeno demais para o padrão '42'.")
+            self.warnings.append(
+                "Warning: Maze dimensions too small to draw '42' pattern."
+            )
             return set()
         offset_x = (self.width // 2) - 3
         offset_y = (self.height - 5) // 2

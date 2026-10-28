@@ -5,8 +5,16 @@ class Clr:
     YLW = '\033[43m'
     RST = '\033[0m'
 
+    CYN = '\033[96m'
+    WHT = '\033[97m'
+    WYLW = '\033[93m'
+    BOL = '\033[1m'
 
-def render_north_walls(row: list[int]) -> str:
+
+def render_north_walls(
+    row: list[int],
+    wall_color: str
+) -> str:
     result: str = ""
 
     for cell in row:
@@ -15,7 +23,7 @@ def render_north_walls(row: list[int]) -> str:
         else:
             result += "+---"
 
-    return result + "+"
+    return f"{wall_color}{result}+{Clr.RST}"
 
 
 def render_side_walls(
@@ -23,7 +31,8 @@ def render_side_walls(
     y: int,
     entry: tuple[int, int],
     exit_pos: tuple[int, int],
-    path: list[tuple[int, int]]
+    path: list[tuple[int, int]],
+    wall_color: str
 ) -> str:
     result: str = ""
     marker = ""
@@ -41,42 +50,46 @@ def render_side_walls(
             marker = "   "
 
         if (cell & 8) != 0:
-            result += f"|{marker}"
+            result += f"{wall_color}|{Clr.RST}{marker}"
         else:
             result += f" {marker}"
     if (row[-1] & 2) != 0:
-        result += "|"
+        result += f"{wall_color}|{Clr.RST}"
     else:
         result += " "
 
     return result
 
 
-def render_south_walls(row: list[int]) -> str:
+def render_south_walls(
+    row: list[int],
+    wall_color: str
+) -> str:
     result: str = ""
     for cell in row:
         if (cell & 4) != 0:
             result += "+---"
         else:
             result += "+   "
-    return result + "+"
+    return f"{wall_color}{result}+{Clr.RST}"
 
 
 def render_maze(
     maze: list[list[int]],
     entry: tuple[int, int],
     exit_pos: tuple[int, int],
-    path: list[tuple[int, int]]
+    path: list[tuple[int, int]],
+    wall_color: str
 ) -> str:
     """Render the complete maze in ASCII."""
     lines: list[str] = []
 
     for y, row in enumerate(maze):
-        lines.append(render_north_walls(row))
-        lines.append(render_side_walls(row, y, entry, exit_pos, path))
+        lines.append(render_north_walls(row, wall_color))
+        lines.append(
+            render_side_walls(row, y, entry, exit_pos, path, wall_color)
+        )
 
-    lines.append(render_south_walls(maze[-1]))
+    lines.append(render_south_walls(maze[-1], wall_color))
 
     return "\n".join(lines) + "\n"
-
-
