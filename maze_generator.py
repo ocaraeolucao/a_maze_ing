@@ -205,20 +205,3 @@ class MazeGenerator:
         if not self.perfect:
             self._make_imperfect(blocked=blocked_cells)
         return self.maze
-
-
-if __name__ == "__main__":
-    print("--- Teste 1: Modo Perfeito (PERFECT=True) ---")
-    gen_perf = MazeGenerator(20, 15, (0, 0), (19, 14), True, seed=42)
-    maze_perf = gen_perf.generate()
-    for row in maze_perf:
-        print("".join(f"{cell:X}" for cell in row))
-    print("\n--- Teste 2: Modo Imperfeito (PERFECT=False) ---")
-    gen_imp = MazeGenerator(20, 15, (0, 0), (19, 14), False, seed=42)
-    maze_imp = gen_imp.generate()
-    for row in maze_imp:
-        print("".join(f"{cell:X}" for cell in row))
-    dead_ends = sum(
-        1 for row in maze_imp for cell in row if cell in {7, 11, 13, 14}
-    )
-    print(f"\nBecos sem saída restantes no modo imperfeito: {dead_ends}")
