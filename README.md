@@ -63,6 +63,7 @@ Foi utilizado o algoritmo **Recursive Backtracker (DFS)** implementado de forma 
 |Maze PERFECT=True | Maze PERFECT=False |
 |:--- | :--- |
 | <img src="https://images4.imgbox.com/12/0c/21ISMIoM_o.png" alt="Maze PERFECT=True"/> | <img src="https://images4.imgbox.com/02/fd/u0DeOpwW_o.png" alt="Maze PERFECT=False"/> |
+
 *Comparação entre o modo PERFECT=True (caminho único) e PERFECT=False (loops e múltiplos caminhos).*
 
 ### Por que esta escolha?
