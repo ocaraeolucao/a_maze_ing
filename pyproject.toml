@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mazegen"
+version = "0.1.0"
+description = "Motor de geração e resolução de labirintos para o projeto A-Maze-ing."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE.md" }
+authors = [
+    { name = "Lucas Vieira" },
+    { name = "João Victor" }
+]
+
+[tool.setuptools]
+py-modules = ["maze_generator", "maze_solver"]

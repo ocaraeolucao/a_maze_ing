@@ -1,0 +1,18 @@
+# Ambientes virtuais
+.venv/
+venv/
+
+# Artefatos e caches do Python
+__pycache__/
+*.pyc
+.mypy_cache/
+.pytest_cache/
+
+# Metadados e pastas de build temporárias
+dist/
+build/
+*.egg-info/
+poetry.lock
+
+# Saídas temporárias de testes
+maze.txt
