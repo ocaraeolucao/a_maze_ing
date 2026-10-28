@@ -218,7 +218,8 @@ def main() -> int:
     except (OSError, ValueError, KeyError, UnicodeError) as error:
         print(f"Configuration error: {error}", file=sys.stderr)
         return 1
-
+    
+    run_menu(maze, entry, exit_pos, path)
     print("Configuration validated successfully!")
     print(f"Dimensions: {width}x{height}")
     print(f"Entry: {entry}")
